@@ -1,0 +1,133 @@
+/*
+Theme Name: River Child
+Theme URI: http://demo.qodeinteractive.com/river/
+Description: A child theme of River Theme
+Author: Qode Interactive
+Author URI: http://www.qodeinteractive.com/
+Version: 1.0.0
+Template: river
+*/
+
+
+/*child css Start */
+
+.tn_results .tn_results_tickets_text{
+	width:90px;
+	vertical-align:middle;
+}
+
+.tn_results .tn_results_tickets_text a:hover{
+	color:#f54325;
+	text-decoration:none;
+}
+
+.textwidget{
+	color:#ffffff;
+}
+
+.ls-s-1 .form-control{
+height:48px;
+font-size:18px;
+width:70%;
+}
+.ls-s-1 .btn{
+height:50px;
+}
+
+.homesearch{
+text-align:center;
+}
+
+.tophead h1{
+	font-color:#ffffff;
+}
+
+.page-id-32787 .box_holder{
+border-radius:10%;
+}
+
+.eventlist{
+list-style-type:none;
+}
+
+.eventlist li{
+padding-top:2px;
+padding-bottom:2px;
+}
+.eventlist a {
+    color: #000000;
+    text-decoration: none;
+}
+.eventlist a:hover {
+    color: #d83c3c;
+    text-decoration: none;
+}
+
+.thumb{
+border:2px solid #d83c3c;
+width:32px;
+height:32px;
+min-height:32px;
+vertical-align:middle; margin-right:10px;
+border-radius:20px;
+}
+
+.home .call_to_action {
+position: relative;
+display: block;
+padding: 33px;
+color: #000;
+font-size: 15px;
+}
+
+.box_holder_inner h1 a{
+	color:#ffffff;
+}
+
+.box_holder_inner a:hover{
+	text-decoration:none;
+}
+.footerlist{
+list-style-type:cirle;
+}
+.footerlist li{
+	font-size:12px;
+}
+
+.eventhead{
+background-color:#d83c3c;
+text-align:center;
+color:#ffffff;
+padding:10px;
+}
+
+.eventbox {
+	border:2px solid;
+}
+.page-id-61724 .wpb_wrapper{
+	border: 1px solid #F2F2F2;
+	padding:4px;
+}
+
+footer .footer_top_holder .footer_top .container .container_inner #sml_subscribe_widget form .sml_email {
+	float: left;
+}
+
+footer .footer_top_holder .footer_top .container .container_inner #sml_subscribe_widget form .sml_submitbtn {
+background: url('../river-child/img/subscribe.png') center right no-repeat;
+width: 24px!important;
+height: 26px;
+border: none;
+border-radius: 0;
+margin: 2px 0 0 4px;
+}
+.tkt-btn{
+	font-size:12px;
+	font-weight:700;
+	display:inline block;
+	color:#fff;
+	border-radius:4px;
+	padding:5px;
+	background-color:#424242;
+}
+

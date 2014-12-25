@@ -1,0 +1,87 @@
+/*
+Theme Name: River
+Theme URI: http://demo.qodeinteractive.com/river/
+Description: River Theme
+Tags: creative, portfolio, multi-purpose, clean, retina, responsive, wpml, parallax, background video, mega menu, blog, agency, infographics, art
+Author: Qode Interactive
+Author URI: http://www.qodeinteractive.com/
+Version: 1.2
+License: GNU General Public License
+License URI: licence/GPL.txt
+
+*/
+
+/*
+CSS changes can be made in files in the /css/ folder. This is a placeholder file required by WordPress, so do not delete it.
+
+1.2
+- Updated Visual Composer to Version 4.1.2 with custom work by Qode
+- Updated LayerSlider to version 5.1.1
+- Fixed WP 3.9 Qode Shortcodes bug
+- Fixed WP 3.9 Qode Options image browser field bug
+- Fixed flush_rewrite_rules() function to execute only on theme switch
+
+1.1
+- Added scroll on side menu area when content is higher than screen
+- Improved resize logic for wide menu
+- Updated mobile menu arrows, they are larger now and hover efect is disabled
+- Updated LayerSlider to version 5.0.2
+- Fixed bug with blog pagination on blog small image template
+- Fixed bug with portfolio circle list excerpt
+- Fixed bug with logo loading
+- Fixed bug with service element loading on page transitions
+- Fixed 'qode like' functionality on portfolios that are inerted via 'load more' functions
+- Fixed responsive bug when browser's width is less then 1100px
+- Fixed bug with menu on IE when animations are disabled
+- Fixed bug with 404 subtitle field in Qode options
+
+1.0.5
+- Improved resize stages and menu resizing on smaller screens
+- Updated LayerSlider to version 5.0.1
+- Fixed bug with Visual Composer css loading
+- Fixed some minor bugs with anchor active class
+- Fixed Google font inclusion bug
+- Fixed progress bar percentage position
+- Fixed circle portfolio list
+- Sorted font awesome icons
+
+1.0.4
+- Improved "viewport" metatag for non responsive sites
+- Fixed anchor logic when ajax loader is not on
+- Fixed anchor hash changing on same page
+- Fixed logic for getting logo height so it doesn't require allow_url_fopen directive to be enabled
+- Fixed a bug with latest blog shortcode regarding localization of the post dates
+- Fixed header height when side area is disabled
+- Fixed mobile menu active state
+- Fixed pagination on home.php file
+- Fixed rendering of P tags on "gallery" post format
+
+
+1.0.3
+- Added background color for mobile dropdown menu
+- Added functionality for side menu and mobile menu button color changing (takes color from first level menu, on smaller screens from mobile dropdown background color)
+- Improved mobile menu logic, now closing on menu item click
+- Fixed deliting of custom sidebars
+- Fixed steps attributes for line graph shortcode for Visual Composer
+- Fixed portfolio list for new version of Chrome
+- Fixed background color for Call to Action widget
+
+
+1.0.2
+- Added anchor functionality on parallax sections, custom links (manualy added class needed) and buttons
+- Added icon fade animation and delay attributes for icon with text shortcode
+- Added style for search widget in top header
+- Added entering animation on "centered" title type
+- Updated portfolio list shortcode to add one portfolio item per row
+- Updated smooth scroll on/off logic to choose between all devices and all without Mac devices (all devices are not including touch devices)
+- Fixed minor validation errors
+- Fixed category attribute in latest posts shortcode
+- Fixed blog responsiveness (social and like links)
+
+
+1.0.1
+- Fixed css animations (from top and bottom)
+- Fixed ajax loader color changing(first color)
+- Fixed layout for whole post blog type
+- Fixed single post layout for video type
+*/
