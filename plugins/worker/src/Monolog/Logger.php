@@ -85,14 +85,14 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      * @var array $levels Logging levels
      */
     protected static $levels = array(
-      100 => 'DEBUG',
-      200 => 'INFO',
-      250 => 'NOTICE',
-      300 => 'WARNING',
-      400 => 'ERROR',
-      500 => 'CRITICAL',
-      550 => 'ALERT',
-      600 => 'EMERGENCY',
+        100 => 'DEBUG',
+        200 => 'INFO',
+        250 => 'NOTICE',
+        300 => 'WARNING',
+        400 => 'ERROR',
+        500 => 'CRITICAL',
+        550 => 'ALERT',
+        600 => 'EMERGENCY',
     );
 
     /**
@@ -195,9 +195,9 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record.
      *
-     * @param  integer $level   The logging level
-     * @param  string  $message The log message
-     * @param  array   $context The log context
+     * @param integer $level   The logging level
+     * @param string  $message The log message
+     * @param array   $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -207,23 +207,14 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
             $this->pushHandler(new Monolog_Handler_StreamHandler('php://stderr', self::DEBUG));
         }
 
-        if (!self::$timezone) {
-            self::$timezone = new DateTimeZone(date_default_timezone_get() ? date_default_timezone_get() : 'UTC');
-        }
-
-        list($time, $microTime) = explode('.', microtime(true));
-        $microTime = str_pad($microTime, 6, '0', STR_PAD_RIGHT);
-        $date      = new DateTime(date('Y-m-d H:i:s.'.$microTime, $time));
-        $date->setTimezone(self::$timezone);
-
         $record = array(
-          'message'    => (string) $message,
-          'context'    => $context,
-          'level'      => $level,
-          'level_name' => self::getLevelName($level),
-          'channel'    => $this->name,
-          'datetime'   => $date,
-          'extra'      => array(),
+            'message'    => (string) $message,
+            'context'    => $context,
+            'level'      => $level,
+            'level_name' => self::getLevelName($level),
+            'channel'    => $this->name,
+            'datetime'   => $this->getCurrentTimestamp(),
+            'extra'      => array(),
         );
         // check if any handler will handle this message
         $handlerKey = null;
@@ -243,18 +234,31 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
             $record = call_user_func($processor, $record);
         }
         while (isset($this->handlers[$handlerKey]) &&
-          false === $this->handlers[$handlerKey]->handle($record)) {
+            false === $this->handlers[$handlerKey]->handle($record)) {
             $handlerKey++;
         }
 
         return true;
     }
 
+    private function getCurrentTimestamp()
+    {
+        if (!self::$timezone) {
+            self::$timezone = new DateTimeZone(date_default_timezone_get() ? date_default_timezone_get() : 'UTC');
+        }
+
+        if (is_callable(array('DateTime', 'createFromFormat'))) {
+            return DateTime::createFromFormat('U.u', sprintf('%.6F', microtime(true)), self::$timezone)->setTimezone(self::$timezone);
+        }
+
+        return new DateTime('now', self::$timezone);
+    }
+
     /**
      * Adds a log record at the DEBUG level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -266,8 +270,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record at the INFO level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -279,8 +283,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record at the NOTICE level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -292,8 +296,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record at the WARNING level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -305,8 +309,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record at the ERROR level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -318,8 +322,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record at the CRITICAL level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -331,8 +335,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record at the ALERT level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -344,8 +348,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Adds a log record at the EMERGENCY level.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -367,7 +371,7 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Gets the name of the logging level.
      *
-     * @param  integer $level
+     * @param integer $level
      *
      * @return string
      */
@@ -383,14 +387,14 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
     /**
      * Checks whether the Logger has a handler that listens on the given level
      *
-     * @param  integer $level
+     * @param integer $level
      *
      * @return Boolean
      */
     public function isHandling($level)
     {
         $record = array(
-          'level' => $level,
+            'level' => $level,
         );
 
         foreach ($this->handlers as $handler) {
@@ -407,9 +411,9 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  mixed  $level   The log level
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param mixed  $level   The log level
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -427,8 +431,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -442,8 +446,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -457,8 +461,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -472,8 +476,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -487,8 +491,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -502,8 +506,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -517,8 +521,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -532,8 +536,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -547,8 +551,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -562,8 +566,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -577,8 +581,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */
@@ -592,8 +596,8 @@ class Monolog_Logger implements Monolog_Psr_LoggerInterface
      *
      * This method allows for compatibility with common interfaces.
      *
-     * @param  string $message The log message
-     * @param  array  $context The log context
+     * @param string $message The log message
+     * @param array  $context The log context
      *
      * @return Boolean Whether the record has been processed
      */

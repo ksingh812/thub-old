@@ -8,16 +8,16 @@
  **************************************************************/
 class MMB_Installer extends MMB_Core
 {
-    function __construct()
+    public function __construct()
     {
         @set_time_limit(600);
         parent::__construct();
-        @include_once(ABSPATH.'wp-admin/includes/file.php');
-        @include_once(ABSPATH.'wp-admin/includes/plugin.php');
-        @include_once(ABSPATH.'wp-admin/includes/theme.php');
-        @include_once(ABSPATH.'wp-admin/includes/misc.php');
-        @include_once(ABSPATH.'wp-admin/includes/template.php');
-        @include_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
+        @include_once ABSPATH.'wp-admin/includes/file.php';
+        @include_once ABSPATH.'wp-admin/includes/plugin.php';
+        @include_once ABSPATH.'wp-admin/includes/theme.php';
+        @include_once ABSPATH.'wp-admin/includes/misc.php';
+        @include_once ABSPATH.'wp-admin/includes/template.php';
+        @include_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
 
         global $wp_filesystem;
         if (!$wp_filesystem) {
@@ -25,7 +25,7 @@ class MMB_Installer extends MMB_Core
         }
     }
 
-    function mmb_maintenance_mode($enable = false, $maintenance_message = '')
+    public function mmb_maintenance_mode($enable = false, $maintenance_message = '')
     {
         global $wp_filesystem;
 
@@ -40,48 +40,48 @@ class MMB_Installer extends MMB_Core
         }
     }
 
-    function install_remote_files($params)
+    public function install_remote_files($params)
     {
         $data = array();
         foreach ($params['plugins'] as $theme) {
-            $dataTmp = $this->install_remote_file($theme);
-            $pluginName = key($dataTmp);
+            $dataTmp           = $this->install_remote_file($theme);
+            $pluginName        = key($dataTmp);
             $data[$pluginName] = $dataTmp;
         }
         foreach ($params['themes'] as $theme) {
-            $dataTmp = $this->install_remote_file($theme);
-            $themeName = key($dataTmp);
+            $dataTmp          = $this->install_remote_file($theme);
+            $themeName        = key($dataTmp);
             $data[$themeName] = $dataTmp;
         }
 
         return $data;
     }
 
-    function install_remote_file($params)
+    public function install_remote_file($params)
     {
         global $wp_filesystem;
         extract($params);
 
         if (!isset($package) || empty($package)) {
             return array(
-                'error' => '<p>No files received. Internal error.</p>'
+                'error' => '<p>No files received. Internal error.</p>',
             );
         }
 
         if (!$this->is_server_writable()) {
             return array(
-                'error' => 'Failed, please <a target="_blank" href="http://managewp.com/user-guide/faq/my-pluginsthemes-fail-to-update-or-i-receive-a-yellow-ftp-warning">add FTP details</a>'
+                'error' => 'Failed, please <a target="_blank" href="http://managewp.com/user-guide/faq/my-pluginsthemes-fail-to-update-or-i-receive-a-yellow-ftp-warning">add FTP details</a>',
             );
         }
 
         if (defined('WP_INSTALLING') && file_exists(ABSPATH.'.maintenance')) {
             return array(
-                'error' => '<p>Site under maintanace.</p>'
+                'error' => '<p>Site under maintanace.</p>',
             );
         }
 
         if (!class_exists('WP_Upgrader')) {
-            include_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
+            include_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
         }
 
         $upgrader_skin              = new WP_Upgrader_Skin();
@@ -99,14 +99,14 @@ class MMB_Installer extends MMB_Core
                     'destination'       => $destination,
                     'clear_destination' => $clear_destination, //Do not overwrite files.
                     'clear_working'     => true,
-                    'hook_extra'        => array()
+                    'hook_extra'        => array(),
                 )
             );
         }
 
         if ($activate) {
             if ($type == 'plugins') {
-                include_once(ABSPATH.'wp-admin/includes/plugin.php');
+                include_once ABSPATH.'wp-admin/includes/plugin.php';
                 $all_plugins = get_plugins();
                 foreach ($all_plugins as $plugin_slug => $plugin) {
                     $plugin_dir = preg_split('/\//', $plugin_slug);
@@ -122,7 +122,7 @@ class MMB_Installer extends MMB_Core
             } else {
                 if (count($install_info) == 1) {
                     global $wp_themes;
-                    include_once(ABSPATH.'wp-includes/theme.php');
+                    include_once ABSPATH.'wp-includes/theme.php';
 
                     $wp_themes = null;
                     unset($wp_themes); //prevent theme data caching
@@ -156,28 +156,47 @@ class MMB_Installer extends MMB_Core
                 }
             }
         }
-        ob_clean();
+        // Can generate "E_NOTICE: ob_clean(): failed to delete buffer. No buffer to delete."
+        @ob_clean();
         $this->mmb_maintenance_mode(false);
 
         return $install_info;
     }
 
-    function do_upgrade($params = null)
+    private function ithemes_updater_compatiblity()
     {
+        // Check for the iThemes updater class
+        if (empty($GLOBALS['ithemes_updater_path']) ||
+            !file_exists($GLOBALS['ithemes_updater_path'].'/settings.php')
+        ) {
+            return;
+        }
 
+        // Include iThemes updater
+        require_once $GLOBALS['ithemes_updater_path'].'/settings.php';
 
+        // Check if the updater is instantiated
+        if (empty($GLOBALS['ithemes-updater-settings'])) {
+            return;
+        }
+
+        // Update the download link
+        $GLOBALS['ithemes-updater-settings']->flush('forced');
+    }
+
+    public function do_upgrade($params = null)
+    {
         if ($params == null || empty($params)) {
             return array(
-                'error' => 'No upgrades passed.'
+                'error' => 'No upgrades passed.',
             );
         }
 
         if (!$this->is_server_writable()) {
             return array(
-                'error' => 'Failed, please <a target="_blank" href="http://managewp.com/user-guide/faq/my-pluginsthemes-fail-to-update-or-i-receive-a-yellow-ftp-warning">add FTP details</a>'
+                'error' => 'Failed, please <a target="_blank" href="http://managewp.com/user-guide/faq/my-pluginsthemes-fail-to-update-or-i-receive-a-yellow-ftp-warning">add FTP details</a>',
             );
         }
-
 
         $params = isset($params['upgrades_all']) ? $params['upgrades_all'] : $params;
 
@@ -193,6 +212,7 @@ class MMB_Installer extends MMB_Core
 
         if (!empty($upgrade_plugins)) {
             $plugin_files = array();
+            $this->ithemes_updater_compatiblity();
             foreach ($upgrade_plugins as $plugin) {
                 if (isset($plugin['file'])) {
                     $plugin_files[$plugin['file']] = $plugin['old_version'];
@@ -203,7 +223,7 @@ class MMB_Installer extends MMB_Core
             if (!empty($plugin_files)) {
                 $upgrades['plugins'] = $this->upgrade_plugins($plugin_files);
             }
-
+            $this->ithemes_updater_compatiblity();
         }
 
         if (!empty($upgrade_themes)) {
@@ -219,7 +239,6 @@ class MMB_Installer extends MMB_Core
             if (!empty($theme_temps)) {
                 $upgrades['themes'] = $this->upgrade_themes($theme_temps);
             }
-
         }
 
         if (!empty($premium_upgrades)) {
@@ -236,7 +255,7 @@ class MMB_Installer extends MMB_Core
                 }
             }
         }
-        ob_clean();
+        @ob_clean();
         $this->mmb_maintenance_mode(false);
 
         return $upgrades;
@@ -246,12 +265,12 @@ class MMB_Installer extends MMB_Core
      * Upgrades WordPress locally
 
      */
-    function upgrade_core($current)
+    public function upgrade_core($current)
     {
         ob_start();
 
         if (file_exists(ABSPATH.'/wp-admin/includes/update.php')) {
-            include_once(ABSPATH.'/wp-admin/includes/update.php');
+            include_once ABSPATH.'/wp-admin/includes/update.php';
         }
 
         @wp_version_check();
@@ -266,13 +285,13 @@ class MMB_Installer extends MMB_Core
             $updated = $core->updates[0];
             if (!isset($updated->response) || $updated->response == 'latest') {
                 return array(
-                    'upgraded' => ' updated'
+                    'upgraded' => ' updated',
                 );
             }
 
             if ($updated->response == "development" && $current['response'] == "upgrade") {
                 return array(
-                    'error' => '<font color="#900">Unexpected error. Please upgrade manually.</font>'
+                    'error' => '<font color="#900">Unexpected error. Please upgrade manually.</font>',
                 );
             } else {
                 if ($updated->response == $current['response'] || ($updated->response == "upgrade" && $current['response'] == "development")) {
@@ -285,7 +304,7 @@ class MMB_Installer extends MMB_Core
                         }
                         if ($current_update == false) {
                             return array(
-                                'error' => ' Localization mismatch. Try again.'
+                                'error' => ' Localization mismatch. Try again.',
                             );
                         }
                     } else {
@@ -293,21 +312,21 @@ class MMB_Installer extends MMB_Core
                     }
                 } else {
                     return array(
-                        'error' => ' Transient mismatch. Try again.'
+                        'error' => ' Transient mismatch. Try again.',
                     );
                 }
             }
         } else {
             return array(
-                'error' => ' Refresh transient failed. Try again.'
+                'error' => ' Refresh transient failed. Try again.',
             );
         }
         if ($current_update != false) {
-            global $mmb_wp_version, $wp_filesystem, $wp_version;
+            global $wp_filesystem, $wp_version;
 
             if (version_compare($wp_version, '3.1.9', '>')) {
                 if (!class_exists('Core_Upgrader')) {
-                    include_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
+                    include_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
                 }
 
                 $core   = new Core_Upgrader();
@@ -315,26 +334,25 @@ class MMB_Installer extends MMB_Core
                 $this->mmb_maintenance_mode(false);
                 if (is_wp_error($result)) {
                     return array(
-                        'error' => $this->mmb_get_error($result)
+                        'error' => $this->mmb_get_error($result),
                     );
                 } else {
                     return array(
-                        'upgraded' => ' updated'
+                        'upgraded' => ' updated',
                     );
                 }
-
             } else {
                 if (!class_exists('WP_Upgrader')) {
-                    include_once(ABSPATH.'wp-admin/includes/update.php');
+                    include_once ABSPATH.'wp-admin/includes/update.php';
                     if (function_exists('wp_update_core')) {
                         $result = wp_update_core($current_update);
                         if (is_wp_error($result)) {
                             return array(
-                                'error' => $this->mmb_get_error($result)
+                                'error' => $this->mmb_get_error($result),
                             );
                         } else {
                             return array(
-                                'upgraded' => ' updated'
+                                'upgraded' => ' updated',
                             );
                         }
                     }
@@ -349,19 +367,19 @@ class MMB_Installer extends MMB_Core
                     // Is an update available?
                     if (!isset($current_update->response) || $current_update->response == 'latest') {
                         return array(
-                            'upgraded' => ' updated'
+                            'upgraded' => ' updated',
                         );
                     }
 
                     $res = $upgrader->fs_connect(
                         array(
                             ABSPATH,
-                            WP_CONTENT_DIR
+                            WP_CONTENT_DIR,
                         )
                     );
                     if (is_wp_error($res)) {
                         return array(
-                            'error' => $this->mmb_get_error($res)
+                            'error' => $this->mmb_get_error($res),
                         );
                     }
 
@@ -377,14 +395,14 @@ class MMB_Installer extends MMB_Core
                     $download = $upgrader->download_package($core_package);
                     if (is_wp_error($download)) {
                         return array(
-                            'error' => $this->mmb_get_error($download)
+                            'error' => $this->mmb_get_error($download),
                         );
                     }
 
                     $working_dir = $upgrader->unpack_package($download);
                     if (is_wp_error($working_dir)) {
                         return array(
-                            'error' => $this->mmb_get_error($working_dir)
+                            'error' => $this->mmb_get_error($working_dir),
                         );
                     }
 
@@ -392,14 +410,13 @@ class MMB_Installer extends MMB_Core
                         $wp_filesystem->delete($working_dir, true);
 
                         return array(
-                            'error' => 'Unable to move update files.'
+                            'error' => 'Unable to move update files.',
                         );
                     }
 
                     $wp_filesystem->chmod($wp_dir.'wp-admin/includes/update-core.php', FS_CHMOD_FILE);
 
-                    require(ABSPATH.'wp-admin/includes/update-core.php');
-
+                    require ABSPATH.'wp-admin/includes/update-core.php';
 
                     $update_core = update_core($working_dir, $wp_dir);
                     ob_end_clean();
@@ -407,32 +424,32 @@ class MMB_Installer extends MMB_Core
                     $this->mmb_maintenance_mode(false);
                     if (is_wp_error($update_core)) {
                         return array(
-                            'error' => $this->mmb_get_error($update_core)
+                            'error' => $this->mmb_get_error($update_core),
                         );
                     }
                     ob_end_flush();
 
                     return array(
-                        'upgraded' => 'updated'
+                        'upgraded' => 'updated',
                     );
                 } else {
                     return array(
-                        'error' => 'failed'
+                        'error' => 'failed',
                     );
                 }
             }
         } else {
             return array(
-                'error' => 'failed'
+                'error' => 'failed',
             );
         }
     }
 
-    function upgrade_plugins($plugins = false)
+    public function upgrade_plugins($plugins = false)
     {
         if (!$plugins || empty($plugins)) {
             return array(
-                'error' => 'No plugin files for upgrade.'
+                'error' => 'No plugin files for upgrade.',
             );
         }
 
@@ -453,7 +470,7 @@ class MMB_Installer extends MMB_Core
             $upgrader = new Plugin_Upgrader(new Bulk_Plugin_Upgrader_Skin(compact('nonce', 'url')));
             $result   = $upgrader->bulk_upgrade(array_keys($plugins));
             if (!function_exists('wp_update_plugins')) {
-                include_once(ABSPATH.'wp-includes/update.php');
+                include_once ABSPATH.'wp-includes/update.php';
             }
 
             @wp_update_plugins();
@@ -474,27 +491,27 @@ class MMB_Installer extends MMB_Core
                 ob_end_clean();
 
                 return array(
-                    'upgraded' => $return
+                    'upgraded' => $return,
                 );
             } else {
                 return array(
-                    'error' => 'Upgrade failed.'
+                    'error' => 'Upgrade failed.',
                 );
             }
         } else {
             ob_end_clean();
 
             return array(
-                'error' => 'WordPress update required first.'
+                'error' => 'WordPress update required first.',
             );
         }
     }
 
-    function upgrade_themes($themes = false)
+    public function upgrade_themes($themes = false)
     {
         if (!$themes || empty($themes)) {
             return array(
-                'error' => 'No theme files for upgrade.'
+                'error' => 'No theme files for upgrade.',
             );
         }
 
@@ -512,7 +529,7 @@ class MMB_Installer extends MMB_Core
             $result   = $upgrader->bulk_upgrade($themes);
 
             if (!function_exists('wp_update_themes')) {
-                include_once(ABSPATH.'wp-includes/update.php');
+                include_once ABSPATH.'wp-includes/update.php';
             }
 
             @wp_update_themes();
@@ -533,33 +550,31 @@ class MMB_Installer extends MMB_Core
                 }
 
                 return array(
-                    'upgraded' => $return
+                    'upgraded' => $return,
                 );
             } else {
                 return array(
-                    'error' => 'Upgrade failed.'
+                    'error' => 'Upgrade failed.',
                 );
             }
         } else {
             ob_end_clean();
 
             return array(
-                'error' => 'WordPress update required first'
+                'error' => 'WordPress update required first',
             );
         }
     }
 
-    function upgrade_premium($premium = false)
+    public function upgrade_premium($premium = false)
     {
-        global $mmb_plugin_url;
-
         if (!class_exists('WP_Upgrader')) {
-            include_once(ABSPATH.'wp-admin/includes/class-wp-upgrader.php');
+            include_once ABSPATH.'wp-admin/includes/class-wp-upgrader.php';
         }
 
         if (!$premium || empty($premium)) {
             return array(
-                'error' => 'No premium files for upgrade.'
+                'error' => 'No premium files for upgrade.',
             );
         }
 
@@ -571,12 +586,10 @@ class MMB_Installer extends MMB_Core
         $premium_update = array();
         $premium_update = apply_filters('mwp_premium_perform_update', $premium_update);
         if (!empty($premium_update)) {
-
             foreach ($premium as $pr) {
                 foreach ($premium_update as $key => $update) {
                     $update = array_change_key_case($update, CASE_LOWER);
                     if ($update['name'] == $pr['name']) {
-
                         // prepare bulk updates for premiums that use WordPress upgrader
                         if (isset($update['type'])) {
                             if ($update['type'] == 'plugin') {
@@ -646,18 +659,17 @@ class MMB_Installer extends MMB_Core
                         $upgrader_skin              = new WP_Upgrader_Skin();
                         $upgrader_skin->done_header = true;
                         $upgrader                   = new WP_Upgrader();
-                        @$update_result = $upgrader->run(
+                        @$update_result             = $upgrader->run(
                             array(
                                 'package'           => $update['url'],
                                 'destination'       => isset($update['type']) && $update['type'] == 'theme' ? WP_CONTENT_DIR.'/themes' : WP_PLUGIN_DIR,
                                 'clear_destination' => true,
                                 'clear_working'     => true,
                                 'is_multi'          => true,
-                                'hook_extra'        => array()
+                                'hook_extra'        => array(),
                             )
                         );
                         $update_result = !$update_result || is_wp_error($update_result) ? $this->mmb_get_error($update_result) : 1;
-
                     } else {
                         if (isset($update['callback'])) {
                             if (is_array($update['callback'])) {
@@ -690,7 +702,7 @@ class MMB_Installer extends MMB_Core
         }
     }
 
-    function get_upgradable_plugins($filter = array())
+    public function get_upgradable_plugins($filter = array())
     {
         $current = $this->mmb_get_transient('update_plugins');
 
@@ -724,7 +736,7 @@ class MMB_Installer extends MMB_Core
         }
     }
 
-    function get_upgradable_themes($filter = array())
+    public function get_upgradable_themes($filter = array())
     {
         if (function_exists('wp_get_themes')) {
             $all_themes     = wp_get_themes();
@@ -783,11 +795,10 @@ class MMB_Installer extends MMB_Core
             }
         }
 
-
         return $upgrade_themes;
     }
 
-    function get($args)
+    public function get($args)
     {
         if (empty($args)) {
             return false;
@@ -806,22 +817,22 @@ class MMB_Installer extends MMB_Core
         return $return;
     }
 
-    function get_plugins($args)
+    public function get_plugins($args)
     {
         if (empty($args)) {
             return false;
         }
 
         $search = $args['search'];
-        $type = trim((string) $args['type']);
+        $type   = trim((string) $args['type']);
 
         if (!function_exists('get_plugins')) {
-            include_once(ABSPATH.'wp-admin/includes/plugin.php');
+            include_once ABSPATH.'wp-admin/includes/plugin.php';
         }
         $all_plugins = get_plugins();
         $plugins     = array(
             'active'   => array(),
-            'inactive' => array()
+            'inactive' => array(),
         );
         if (is_array($all_plugins) && !empty($all_plugins)) {
             $activated_plugins = get_option('active_plugins');
@@ -836,7 +847,7 @@ class MMB_Installer extends MMB_Core
                     $plugin = array(
                         'path'    => $path,
                         'name'    => strip_tags($plugin['Name']),
-                        'version' => $plugin['Version']
+                        'version' => $plugin['Version'],
                     );
 
                     // If type is set, it must be equal to the current plugin status
@@ -849,7 +860,6 @@ class MMB_Installer extends MMB_Core
 
                     if ($typeMatches && $searchTermFound) {
                         $plugins[$status][] = $plugin;
-
                     }
                 }
             }
@@ -858,7 +868,7 @@ class MMB_Installer extends MMB_Core
         return $plugins;
     }
 
-    function get_themes($args)
+    public function get_themes($args)
     {
         if (empty($args)) {
             return false;
@@ -867,13 +877,13 @@ class MMB_Installer extends MMB_Core
         extract($args);
 
         if (!function_exists('wp_get_themes')) {
-            include_once(ABSPATH.WPINC.'/theme.php');
+            include_once ABSPATH.WPINC.'/theme.php';
         }
         if (function_exists('wp_get_themes')) {
             $all_themes = wp_get_themes();
             $themes     = array(
                 'active'   => array(),
-                'inactive' => array()
+                'inactive' => array(),
             );
 
             if (is_array($all_themes) && !empty($all_themes)) {
@@ -897,7 +907,6 @@ class MMB_Installer extends MMB_Core
                         $themes['inactive'][$br_i]['stylesheet'] = $theme->Stylesheet;
                         $br_i++;
                     }
-
                 }
 
                 if ($search) {
@@ -918,7 +927,7 @@ class MMB_Installer extends MMB_Core
             $all_themes = get_themes();
             $themes     = array(
                 'active'   => array(),
-                'inactive' => array()
+                'inactive' => array(),
             );
 
             if (is_array($all_themes) && !empty($all_themes)) {
@@ -942,7 +951,6 @@ class MMB_Installer extends MMB_Core
                         $themes['inactive'][$br_i]['stylesheet'] = $theme['Stylesheet'];
                         $br_i++;
                     }
-
                 }
 
                 if ($search) {
@@ -959,13 +967,12 @@ class MMB_Installer extends MMB_Core
                     }
                 }
             }
-
         }
 
         return $themes;
     }
 
-    function edit($args)
+    public function edit($args)
     {
         extract($args);
         $return = array();
@@ -978,7 +985,7 @@ class MMB_Installer extends MMB_Core
         return $return;
     }
 
-    function edit_plugins($args)
+    public function edit_plugins($args)
     {
         extract($args);
         $return = array();
@@ -990,14 +997,14 @@ class MMB_Installer extends MMB_Core
                 case 'deactivate':
                     $result = deactivate_plugins(
                         array(
-                            $item['path']
+                            $item['path'],
                         )
                     );
                     break;
                 case 'delete':
                     $result = delete_plugins(
                         array(
-                            $item['path']
+                            $item['path'],
                         )
                     );
                     break;
@@ -1007,11 +1014,11 @@ class MMB_Installer extends MMB_Core
 
             if (is_wp_error($result)) {
                 $result = array(
-                    'error' => $result->get_error_message()
+                    'error' => $result->get_error_message(),
                 );
             } elseif ($result === false) {
                 $result = array(
-                    'error' => "Failed to perform action."
+                    'error' => "Failed to perform action.",
                 );
             } else {
                 $result = "OK";
@@ -1022,7 +1029,7 @@ class MMB_Installer extends MMB_Core
         return $return;
     }
 
-    function edit_themes($args)
+    public function edit_themes($args)
     {
         extract($args);
         $return = array();
@@ -1040,11 +1047,11 @@ class MMB_Installer extends MMB_Core
 
             if (is_wp_error($result)) {
                 $result = array(
-                    'error' => $result->get_error_message()
+                    'error' => $result->get_error_message(),
                 );
             } elseif ($result === false) {
                 $result = array(
-                    'error' => "Failed to perform action."
+                    'error' => "Failed to perform action.",
                 );
             } else {
                 $result = "OK";
@@ -1053,6 +1060,5 @@ class MMB_Installer extends MMB_Core
         }
 
         return $return;
-
     }
 }
