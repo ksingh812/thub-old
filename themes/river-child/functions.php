@@ -7,7 +7,7 @@ function qode_styles() {
 	global $wp_styles;
 	global $qode_toolbar;
 	global $woocommerce;
-        
+
         wp_enqueue_style("default_style", QODE_ROOT . "/style.css");
         wp_enqueue_style("font-awesome", QODE_ROOT . "/css/font-awesome/css/font-awesome.min.css");
         wp_enqueue_style("stylesheet", QODE_ROOT . "/css/stylesheet.css");
